@@ -1,7 +1,7 @@
 package com.example.Employee_Managment.models;
 
 
-import com.example.Employee_Managment.jwtUtils.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -77,5 +77,20 @@ public class Token {
         return false;
     }
 
+    public Long getUserIdFromToken(String authToken) {
+        return (Long) getClaimsFromToken(authToken).get("user-id");
+    }
 
+    public void setCreated_date() {
+        this.created_date = getClaimsFromToken(this.token).getIssuedAt();
+    }
+
+    public void setExpired_date() {
+        this.expired_date = getClaimsFromToken(this.token).getExpiration();
+    }
+
+
+    private Claims getClaimsFromToken(String authToken) {
+        return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody();
+    }
 }
