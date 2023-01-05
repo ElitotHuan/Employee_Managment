@@ -47,8 +47,12 @@ public class User {
     @Min(1000)
     private double salary;
 
-    @OneToOne(mappedBy = "User_db" , cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     private Login login;
+
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
+    private Token token;
+
 
     public User() {
     }

@@ -1,10 +1,7 @@
 package com.example.Employee_Managment.models;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
@@ -35,25 +32,24 @@ public class Token {
     @NotNull
     private Date expired_date;
 
-    @OneToOne(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id" , referencedColumnName = "user_id")
     private User user;
-
-
 
     public Token() {
     }
 
-    public Token(String token, Date created_date, Date expired_date, User user) {
+    public Token(String token , User user) {
         this.token = token;
-        this.created_date = created_date;
-        this.expired_date = expired_date;
+        this.created_date = getClaimsFromToken(token).getIssuedAt();
+        this.expired_date = getClaimsFromToken(token).getExpiration();
         this.user = user;
     }
 
-    public String generateAuthToken() {
+    public String generateAuthToken(Long user_id) {
+        //Set claims
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user-id", user.getUserId());
+        claims.put("user-id", user_id);
 
         //Create jwt token
         return Jwts.builder()
@@ -72,21 +68,15 @@ public class Token {
             return true;
         } catch (ExpiredJwtException e) {
 
+        } catch (SignatureException e) {
+
         }
 
         return false;
     }
 
     public Long getUserIdFromToken(String authToken) {
-        return (Long) getClaimsFromToken(authToken).get("user-id");
-    }
-
-    public void setCreated_date() {
-        this.created_date = getClaimsFromToken(this.token).getIssuedAt();
-    }
-
-    public void setExpired_date() {
-        this.expired_date = getClaimsFromToken(this.token).getExpiration();
+        return getClaimsFromToken(authToken).get("user-id" , Long.class);
     }
 
 

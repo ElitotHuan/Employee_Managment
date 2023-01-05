@@ -27,23 +27,28 @@ public class Login {
     @NotEmpty
     private String password;
 
+    @NotNull
     private Date create_date;
 
+    @NotNull
     private Date exp_date;
+
+    private Date update_date;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id" , referencedColumnName = "user_id")
-    private User User_db;
+    private User user;
 
 
     public Login() {
     }
 
-    public Login(String username, String password, Date create_date, Date exp_date , User user_db) {
+    public Login(String username, String password, Date create_date, Date exp_date , Date update_date, User user) {
         this.username = username;
         this.password = password;
         this.create_date = create_date;
         this.exp_date = exp_date;
-        this.User_db =  user_db;
+        this.update_date = update_date;
+        this.user =  user;
     }
 }

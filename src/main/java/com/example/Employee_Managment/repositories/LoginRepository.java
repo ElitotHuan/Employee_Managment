@@ -10,10 +10,11 @@ import org.springframework.stereotype.Repository;
 public interface LoginRepository extends JpaRepository<Login, Long> {
 
     @Query(value = "Select * from login l " +
-            "where l.username = :username and l.password = :password and l.exp_date > now()" , nativeQuery = true)
+            "where l.username = :username and l.password = :password and l.exp_date > now()", nativeQuery = true)
     Login findByUsernameAndPasssword(@Param("username") String username, @Param("password") String password);
 
 
-    @Query(value = "Select * from login l where l.user_id =: userId", nativeQuery = true)
-    Login findByUserId(@Param("userId") Long userId);
+    @Query(value = "Select case when count(0) > 0 then true else  false end from login l where l.username =:username and l.exp_date > now()", nativeQuery = true)
+    Boolean checkExpiredDate(@Param("username") String username);
+
 }

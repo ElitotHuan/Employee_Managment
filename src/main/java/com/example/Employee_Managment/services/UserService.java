@@ -3,6 +3,7 @@ package com.example.Employee_Managment.services;
 import com.example.Employee_Managment.dto.UserDTO;
 import com.example.Employee_Managment.models.Login;
 import com.example.Employee_Managment.models.User;
+import com.example.Employee_Managment.repositories.LoginRepository;
 import com.example.Employee_Managment.repositories.UserRepository;
 import com.example.Employee_Managment.response_handler.error_response.Error;
 import com.example.Employee_Managment.response_handler.error_response.ResponeObject;
@@ -23,7 +24,7 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private LoginService loginService;
+    LoginRepository loginRepository;
 
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -76,9 +77,9 @@ public class UserService {
             } else {
                 User user1 = userRepository.save(user);
                 Login login1 = new Login(user.getUsername() , user.getPassword() ,
-                        new Date(System.currentTimeMillis()) , new Date(System.currentTimeMillis() + 3 * 12 * 365 * 24 * 60 * 60 * 1000) , user1);
+                        new Date(System.currentTimeMillis()) , new Date(System.currentTimeMillis() + 3 * 12 * 365 * 24 * 60 * 60 * 1000) , null , user1);
                 userRepository.save(user1);
-                loginService.add(login1);
+                loginRepository.save(login1);
                 logger.info(user1 + " has been added to database");
                 return new ResponeObject("Added successfully");
             }

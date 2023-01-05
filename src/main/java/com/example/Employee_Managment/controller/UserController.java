@@ -28,7 +28,7 @@ public class UserController {
 
     @GetMapping("/get")
     public ResponseEntity<?> getUser(@RequestParam(required = false) Long id,
-                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
+                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
 
         if (authtoken == null) {
             ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
@@ -37,7 +37,7 @@ public class UserController {
         }
 
         if (token.validateToken(authtoken)) {
-//            if (services.checkIdExist(token.getUserIdFromToken(authtoken))) {
+            if (services.checkIdExist(token.getUserIdFromToken(authtoken))) {
                 if (id == null) {
                     List<UserDTO> list = services.getAll();
 
@@ -60,11 +60,11 @@ public class UserController {
                     }
                     return ResponseEntity.ok(employee);
                 }
-//            } else {
-//                ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
-//                        "Login id doesn't exist", 401));
-//                return ResponseEntity.status(respone.getError().getStatus()).body(respone);
-//            }
+            } else {
+                ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
+                        "Token contains a User-id that doesn't exist", 401));
+                return ResponseEntity.status(respone.getError().getStatus()).body(respone);
+            }
         }
         ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
                 "Token is expired please login again", 403));
@@ -73,19 +73,18 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@Valid @RequestBody User user,
-                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
+                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
         if (authtoken == null) {
             ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
                     "Please provide token", 403));
             return ResponseEntity.status(respone.getError().getStatus()).body(respone);
         }
-//
+
 //        if (token.validateToken(authtoken)) {
-//            ResponeObject respone = services.addUser(user);
-//            return ResponseEntity.status(respone.getError().getStatus()).body(respone);
+//
 //        } else {
 //            ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
-//                    "Login id doesn't exist", 401));
+//                    "User id doesn't exist", 401));
 //            return ResponseEntity.status(respone.getError().getStatus()).body(respone);
 //        }
 
@@ -95,7 +94,7 @@ public class UserController {
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@Valid @RequestBody User user,
-                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
+                                        @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
         if (authtoken == null) {
             ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
                     "Please provide token", 403));
@@ -122,24 +121,30 @@ public class UserController {
 //
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> removeUser(@RequestBody User.UserID id,
-                                            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
+    public ResponseEntity<?> removeUser(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken
+            , @RequestBody User.UserID id) {
         if (authtoken == null) {
             ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
                     "Please provide token", 403));
             return ResponseEntity.status(respone.getError().getStatus()).body(respone);
         }
 
-//        if (token.validateToken(authtoken)) {
-//            ResponeObject respone = services.deleteUser(id.getId());
-//            return ResponseEntity.status(respone.getError().getStatus()).body(respone);
-//        } else {
-//            ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
-//                    "Token expired please login", 403));
-//            return ResponseEntity.status(respone.getError().getStatus()).body(respone);
-//        }
+        if (token.validateToken(authtoken)) {
+            if(services.checkIdExist(token.getUserIdFromToken(authtoken))) {
+                ResponeObject respone = services.deleteUser(id.getId());
+                return ResponseEntity.status(respone.getError().getStatus()).body(respone);
+            } else {
+                ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
+                        "Token contains a User-id that doesn't exist", 401));
+                return ResponseEntity.status(respone.getError().getStatus()).body(respone);
+            }
 
-        return null;
+        } else {
+            ResponeObject respone = new ResponeObject("Error found", new Error("Access denied",
+                    "Token expired please login", 403));
+            return ResponseEntity.status(respone.getError().getStatus()).body(respone);
+        }
+
     }
 
 }
