@@ -35,11 +35,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.example.Employee_Managment.services.UserService" additivity="false" level="debug">
+    <logger name="com.example.User_Managment.User.services.UserService" additivity="false" level="debug">
         <appender-ref ref="FILE1"/>
     </logger>
 
-    <logger name="com.example.Employee_Managment.exception_handler.RestExceptionHandler" additivity="false" level="debug">
+    <logger name="com.example.User_Managment.RestExceptionHandler" additivity="false" level="debug">
         <appender-ref ref="FILE2"/>
     </logger>
 

@@ -1,8 +1,8 @@
 @startuml
-class com.example.Employee_Managment.EmployeeManagmentApplication {
+class com.example.User_Managment.EmployeeManagmentApplication {
 + {static} void main(String[])
 }
-class com.example.Employee_Managment.exception_handler.RestExceptionHandler {
+class com.example.User_Managment.RestExceptionHandler {
 - Logger logger
 # ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException,HttpHeaders,HttpStatus,WebRequest)
 # ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException,HttpHeaders,HttpStatus,WebRequest)
@@ -10,7 +10,7 @@ class com.example.Employee_Managment.exception_handler.RestExceptionHandler {
 + ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException)
 - ResponseEntity<Object> buildResponseEntity(ResponeObject)
 }
-class com.example.Employee_Managment.controller.UserController {
+class com.example.User_Managment.User.controller.UserController {
 ~ EmployeeService services
 ~ Token token
 + ResponseEntity<?> getEmployee(Long,String)
@@ -18,35 +18,35 @@ class com.example.Employee_Managment.controller.UserController {
 + ResponseEntity<?> updateEmployee(Employee,String)
 + ResponseEntity<?> removeEmployee(Employee.EmployeeID,String)
 }
-class com.example.Employee_Managment.response_handler.error_response.Error {
+class com.example.User_Managment.response_handler.Error {
 - String message
 - String cause
 - int status
 + <<Create>> Error(String,String,int)
 + <<Create>> Error(int)
 }
-class com.example.Employee_Managment.services.TokenService {
+class com.example.User_Managment.services.TokenService {
 - TokenRepository tokenRepository
 - EmployeeRepository employeeRepository
 - {static} String JWT_SECRET_KEY
 + Token store(String)
 }
-interface com.example.Employee_Managment.repositories.UserRepository {
+interface com.example.User_Managment.User.repositories.UserRepository {
 ~ Employee findByUsernameAndPassword(String,String)
 ~ Employee findByUsername(String)
 }
-class com.example.Employee_Managment.response_handler.error_response.ResponeObject {
+class com.example.User_Managment.response_handler.ResponeObject {
 - String message
 - Error error
 + <<Create>> ResponeObject(String,Error)
 + <<Create>> ResponeObject(String)
 }
-class com.example.Employee_Managment.EmployeeManagmentApplicationTests {
+class com.example.User_Managment.EmployeeManagmentApplicationTests {
 ~ void contextLoads()
 }
-interface com.example.Employee_Managment.repositories.PasswordRepository {
+interface com.example.User_Managment.repositories.PasswordRepository {
 }
-class com.example.Employee_Managment.models.User {
+class com.example.User_Managment.User.models.User {
 - Long employee_id
 - String name
 - String username
@@ -58,23 +58,23 @@ class com.example.Employee_Managment.models.User {
 - Token token_info
 + <<Create>> Employee()
 }
-class com.example.Employee_Managment.models.User.EmployeeID {
+class com.example.User_Managment.User.models.User.EmployeeID {
 - Long id
 }
-class com.example.Employee_Managment.models.User.PasswordUpdate {
+class com.example.User_Managment.User.models.User.PasswordUpdate {
 - Long id
 - String newPassword
 }
-interface com.example.Employee_Managment.repositories.TokenRepository {
+interface com.example.User_Managment.Authenticate.repositories.TokenRepository {
 ~ Token findByUserId(Long)
 }
-class com.example.Employee_Managment.controller.LoginController {
+class com.example.User_Managment.Login.controller.LoginController {
 - LoginService loginService
 - TokenService tokenService
 - Token token
 + ResponseEntity<?> login(LoginRequest)
 }
-class com.example.Employee_Managment.dto.UserDTO {
+class com.example.User_Managment.dto.UserDTO {
 - Long id
 - String name
 - int age
@@ -82,18 +82,18 @@ class com.example.Employee_Managment.dto.UserDTO {
 - double salary
 + <<Create>> EmployeeDTO(Long,String,int,String,double)
 }
-class com.example.Employee_Managment.jwtUtils.JwtTokenProvider {
+class com.example.User_Managment.jwtUtils.JwtTokenProvider {
 - {static} String JWT_SECRET_KEY
 + String generateToken(Employee)
 + boolean validateToken(String)
 + Long getUserIdFromToken(String)
 }
-class com.example.Employee_Managment.payload.LoginResponse {
+class com.example.User_Managment.payload.LoginResponse {
 - String message
 - String accessToken
 + <<Create>> LoginResponse(String,String)
 }
-class com.example.Employee_Managment.services.UserService {
+class com.example.User_Managment.User.services.UserService {
 - EmployeeRepository employeeRepository
 - PasswordRepository passwordRepository
 - JwtTokenProvider jtp
@@ -109,7 +109,7 @@ class com.example.Employee_Managment.services.UserService {
 - PasswordInfo createPassword(Employee)
 - PasswordInfo getPasswordInfoByEmployId(Employee)
 }
-class com.example.Employee_Managment.models.Token {
+class com.example.User_Managment.models.Token {
 - Long id
 - String token
 - Date created_date
@@ -118,15 +118,15 @@ class com.example.Employee_Managment.models.Token {
 + <<Create>> Token()
 + <<Create>> Token(String,Date,Date,Employee)
 }
-class com.example.Employee_Managment.services.LoginService {
+class com.example.User_Managment.Login.services.LoginService {
 ~ EmployeeRepository employeeRepository
 + Employee check(String,String)
 }
-class com.example.Employee_Managment.payload.LoginRequest {
+class com.example.User_Managment.payload.LoginRequest {
 - String username
 - String password
 }
-class com.example.Employee_Managment.models.PasswordInfo {
+class com.example.User_Managment.models.PasswordInfo {
 - Long pasword_id
 - String password
 - Date create_date
@@ -136,11 +136,11 @@ class com.example.Employee_Managment.models.PasswordInfo {
 }
 
 
-org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler <|-- com.example.Employee_Managment.exception_handler.RestExceptionHandler
-org.springframework.data.jpa.repository.JpaRepository <|-- com.example.Employee_Managment.repositories.UserRepository
-org.springframework.data.jpa.repository.JpaRepository <|-- com.example.Employee_Managment.repositories.PasswordRepository
-com.example.Employee_Managment.models.User +.. com.example.Employee_Managment.models.User.EmployeeID
-com.example.Employee_Managment.models.User +.. com.example.Employee_Managment.models.User.PasswordUpdate
-org.springframework.data.jpa.repository.JpaRepository <|-- com.example.Employee_Managment.repositories.TokenRepository
-com.example.Employee_Managment.jwtUtils.JwtTokenProvider <|-- com.example.Employee_Managment.models.Token
+org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler <|-- com.example.User_Managment.RestExceptionHandler
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.User_Managment.User.repositories.UserRepository
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.User_Managment.repositories.PasswordRepository
+com.example.User_Managment.User.models.User +.. com.example.User_Managment.User.models.User.EmployeeID
+com.example.User_Managment.User.models.User +.. com.example.User_Managment.User.models.User.PasswordUpdate
+org.springframework.data.jpa.repository.JpaRepository <|-- com.example.User_Managment.Authenticate.repositories.TokenRepository
+com.example.User_Managment.jwtUtils.JwtTokenProvider <|-- com.example.User_Managment.models.Token
 @enduml
