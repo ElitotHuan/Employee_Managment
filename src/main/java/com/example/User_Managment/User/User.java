@@ -1,7 +1,7 @@
-package com.example.User_Managment.User.models;
+package com.example.User_Managment.User;
 
-import com.example.User_Managment.Authenticate.models.Token;
-import com.example.User_Managment.Login.models.Login;
+import com.example.User_Managment.Login.Token;
+import com.example.User_Managment.Login.Login;
 import com.sun.istack.NotNull;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
@@ -23,15 +23,15 @@ public class User {
     private Long userId;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty
+    @NotEmpty(message = "Name is required")
     private String name;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty
+    @NotEmpty(message = "username is required")
     private String username;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty
+    @NotEmpty(message = "password is required")
     private String password;
 
     @NotNull
@@ -40,7 +40,7 @@ public class User {
     private int age;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty
+    @NotEmpty(message = "position is required")
     private String position;
 
     @NotNull
@@ -56,7 +56,6 @@ public class User {
 
     @Data
     public static class UserID {
-        @NotNull
         private Long id;
     }
 

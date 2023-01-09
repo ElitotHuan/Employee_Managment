@@ -1,6 +1,5 @@
-package com.example.User_Managment.Authenticate.repositories;
+package com.example.User_Managment.Login;
 
-import com.example.User_Managment.Authenticate.models.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

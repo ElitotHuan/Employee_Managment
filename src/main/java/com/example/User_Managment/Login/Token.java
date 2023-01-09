@@ -1,7 +1,6 @@
-package com.example.User_Managment.Authenticate.models;
+package com.example.User_Managment.Login;
 
-import com.example.User_Managment.RestExceptionHandler;
-import com.example.User_Managment.User.models.User;
+import com.example.User_Managment.User.User;
 import io.jsonwebtoken.*;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;

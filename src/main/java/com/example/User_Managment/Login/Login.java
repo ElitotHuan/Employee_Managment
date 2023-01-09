@@ -1,12 +1,14 @@
-package com.example.User_Managment.Login.models;
+package com.example.User_Managment.Login;
 
-import com.example.User_Managment.User.models.User;
+import com.example.User_Managment.User.User;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
@@ -14,7 +16,6 @@ import java.util.Date;
 @Data
 @Validated
 @Entity
-@XmlRootElement
 @Table(name = "login")
 public class Login {
 
@@ -24,10 +25,12 @@ public class Login {
     private Long id;
 
     @Column(columnDefinition = "TEXT")
+    @XmlAttribute(name = "username")
     @NotEmpty
     private String username;
 
     @Column(columnDefinition = "TEXT")
+    @XmlAttribute(name = "password")
     @NotEmpty
     private String password;
 
@@ -74,8 +77,3 @@ public class Login {
         this.user = user;
     }
 }
-
-
-//class LoginRespone extends Login {
-//
-//}
