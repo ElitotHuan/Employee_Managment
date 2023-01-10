@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -22,12 +23,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
 
 @ControllerAdvice
 public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(ExceptionsHandler.class);
 
-    //Rest Exception
+    //Rest Exceptions
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.error(ex.getMessage());
@@ -41,7 +44,13 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        logger.error(ex.getMessage());
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        List<String> listErrors = new ArrayList<>();
+        for (FieldError fieldError: fieldErrors ) {
+            String errorMessage = fieldError.getDefaultMessage();
+            listErrors.add(errorMessage);
+        }
+        logger.warn(listErrors.toString());
         return buildResponseEntity(new ErrorRespone("Validation failed", status.value()));
     }
 
@@ -51,17 +60,10 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new ErrorRespone(ex.getMessage(), status.value()));
     }
 
-
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         logger.warn(ex.getMessage());
         return buildResponseEntity(new ErrorRespone("Can't find user", HttpStatus.BAD_REQUEST.value()));
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
-        logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Constrains violated", HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -70,7 +72,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
-    //JWT exception
+    //JWT exceptions
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         logger.error("JWT String argument cannot be null or empty");

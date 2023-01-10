@@ -2,7 +2,6 @@ package com.example.User_Managment.Login;
 
 import com.example.User_Managment.User.User;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -13,7 +12,6 @@ import java.util.Date;
 @XmlRootElement(name = "login")
 @XmlAccessorType(XmlAccessType.NONE)
 @Data
-@Validated
 @Entity
 @Table(name = "login")
 public class Login {
@@ -33,9 +31,10 @@ public class Login {
     @NotEmpty(message = "password is required")
     private String password;
 
-
+    @NotNull
     private Date create_date;
 
+    @NotNull
     private Date exp_date;
 
     private Date update_date;

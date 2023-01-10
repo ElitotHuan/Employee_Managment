@@ -3,17 +3,13 @@ package com.example.User_Managment.Login;
 import com.example.User_Managment.User.User;
 import io.jsonwebtoken.*;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Data
-@Validated
 @Entity
 @Table(name = "Token_info")
 public class Token {

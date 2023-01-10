@@ -26,24 +26,23 @@ public class UserController {
 
 
     @GetMapping("/get")
-    public ResponseEntity<?> getUser(@RequestParam(required = false) Long id,
+    public ResponseEntity<?> getUser(@RequestParam(required = false) String id,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         if (token.validateToken(authtoken)) {
             if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
                 if (id == null) {
-                    try {
-                        List<UserDTO> list = services.getAll();
-                        if (list.isEmpty()) {
-                            return ResponseEntity.status(200).body(new SuccessRespone("There are no users"));
-                        }
-                        return ResponseEntity.ok(list);
-                    } catch (NullPointerException e) {
-                        errorRespone = new ErrorRespone(e.getMessage(), HttpStatus.BAD_REQUEST.value());
-                        return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
+                    List<UserDTO> list = services.getAll();
+                    if (list.isEmpty()) {
+                        return ResponseEntity.status(200).body(new SuccessRespone("There are no users"));
                     }
+                    return ResponseEntity.ok(list);
+                }
 
+                if (id.isEmpty()) {
+                    errorRespone = new ErrorRespone("Not provide id", HttpStatus.BAD_REQUEST.value());
+                    return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
                 } else {
-                    UserDTO employee = services.getUser(id);
+                    UserDTO employee = services.getUser(Long.parseLong(id));
                     if (employee == null) {
                         return ResponseEntity.status(204).body(new SuccessRespone("User doesn't exit"));
                     }
@@ -51,15 +50,15 @@ public class UserController {
                 }
             } else {
                 errorRespone = new ErrorRespone("Unauthorized Access!", HttpStatus.UNAUTHORIZED.value());
-                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
             }
         }
-        errorRespone = new ErrorRespone("Access denied", HttpStatus.FORBIDDEN.value());
-        return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+
+        return null;
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addUser(@Valid @RequestBody User user,
+    public ResponseEntity<?> addUser(@RequestBody @Valid User user,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
 
         if (token.validateToken(authtoken)) {
@@ -73,15 +72,13 @@ public class UserController {
                 errorRespone = new ErrorRespone("Unauthorized Access!", 401);
                 return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
             }
-        } else {
-            errorRespone = new ErrorRespone("Access denied", 403);
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
 
+        return null;
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@Valid @RequestBody User user,
+    public ResponseEntity<?> updateUser(@RequestBody @Valid User user,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
         if (token.validateToken(authtoken)) {
@@ -96,8 +93,7 @@ public class UserController {
                 return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
             }
         }
-        errorRespone = new ErrorRespone("Access denied", 403);
-        return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+        return null;
     }
 
 //    @PutMapping("/update/password")
@@ -120,10 +116,8 @@ public class UserController {
                 return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
             }
 
-        } else {
-            errorRespone = new ErrorRespone("Unauthorized Access", 403);
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
+        return null;
 
     }
 

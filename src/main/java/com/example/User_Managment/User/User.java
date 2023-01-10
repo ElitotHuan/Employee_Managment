@@ -2,18 +2,13 @@ package com.example.User_Managment.User;
 
 import com.example.User_Managment.Login.Token;
 import com.example.User_Managment.Login.Login;
-import com.sun.istack.NotNull;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.*;
 
 @Data
 @Entity
-@Validated
 @Table(name = "User_db")
 public class User {
 
