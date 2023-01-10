@@ -3,6 +3,7 @@ package com.example.User_Managment.Login;
 import com.example.User_Managment.response_handler.ErrorRespone;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,8 +19,8 @@ public class LoginController {
 
     private final Token token = new Token();
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody Login.LoginRequest request) {
+    @PostMapping(value = "/login" ,consumes = {MediaType.APPLICATION_XML_VALUE})
+    public ResponseEntity<?> login(@Valid @RequestBody Login request) {
         Login account = loginService.findAccount(request.getUsername(), request.getPassword());
 
         if (account == null) {
@@ -32,7 +33,7 @@ public class LoginController {
                 loginService.storeToken(newToken);
                 return ResponseEntity.status(200).body(new Login.LoginRespone("Login success", authToken));
             }
-            ErrorRespone respone = new ErrorRespone("your account has expired please contact your system administrator ", 401);
+            ErrorRespone respone = new ErrorRespone("Your account has expired please contact your system administrator ", 403);
             return ResponseEntity.status(respone.getStatus()).body(respone);
         }
     }

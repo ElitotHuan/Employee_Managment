@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -35,7 +34,7 @@ public class UserController {
                     try {
                         List<UserDTO> list = services.getAll();
                         if (list.isEmpty()) {
-                            return ResponseEntity.ok().body(new SuccessRespone("There are no users"));
+                            return ResponseEntity.status(200).body(new SuccessRespone("There are no users"));
                         }
                         return ResponseEntity.ok(list);
                     } catch (NullPointerException e) {
@@ -46,7 +45,7 @@ public class UserController {
                 } else {
                     UserDTO employee = services.getUser(id);
                     if (employee == null) {
-                        return ResponseEntity.status(200).body(new SuccessRespone("User doesn't exit"));
+                        return ResponseEntity.status(204).body(new SuccessRespone("User doesn't exit"));
                     }
                     return ResponseEntity.ok(employee);
                 }
@@ -61,11 +60,14 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@Valid @RequestBody User user,
-                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
+                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
 
         if (token.validateToken(authtoken)) {
             if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
                 Object respone = services.addUser(user);
+                if (respone instanceof ErrorRespone) {
+                    return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
+                }
                 return ResponseEntity.status(200).body(respone);
             } else {
                 errorRespone = new ErrorRespone("Unauthorized Access!", 401);
@@ -83,10 +85,17 @@ public class UserController {
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
         if (token.validateToken(authtoken)) {
-            Object respone = services.updateUser(user.getUserId(), user);
-            return ResponseEntity.status(200).body(respone);
+            if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
+                Object respone = services.updateUser(user.getUserId(), user);
+                if (respone instanceof ErrorRespone) {
+                    return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
+                }
+                return ResponseEntity.status(200).body(respone);
+            } else {
+                errorRespone = new ErrorRespone("Unauthorized Access!", 401);
+                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+            }
         }
-
         errorRespone = new ErrorRespone("Access denied", 403);
         return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
     }
@@ -112,7 +121,7 @@ public class UserController {
             }
 
         } else {
-            errorRespone = new ErrorRespone("Access denied: Token expired", 403);
+            errorRespone = new ErrorRespone("Unauthorized Access", 403);
             return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
 

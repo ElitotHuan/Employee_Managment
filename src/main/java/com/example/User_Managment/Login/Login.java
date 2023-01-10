@@ -7,12 +7,11 @@ import org.springframework.validation.annotation.Validated;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.Date;
 
+@XmlRootElement(name = "login")
+@XmlAccessorType(XmlAccessType.NONE)
 @Data
 @Validated
 @Entity
@@ -24,20 +23,19 @@ public class Login {
     @Column(name = "id")
     private Long id;
 
+    @XmlElement(name = "username")
     @Column(columnDefinition = "TEXT")
-    @XmlAttribute(name = "username")
-    @NotEmpty
+    @NotEmpty(message = "username is required")
     private String username;
 
+    @XmlElement(name = "password")
     @Column(columnDefinition = "TEXT")
-    @XmlAttribute(name = "password")
-    @NotEmpty
+    @NotEmpty(message = "password is required")
     private String password;
 
-    @NotNull
+
     private Date create_date;
 
-    @NotNull
     private Date exp_date;
 
     private Date update_date;
@@ -46,13 +44,13 @@ public class Login {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
-    @Data
-    public static class LoginRequest {
-        @NotEmpty
-        private String username;
-        @NotEmpty
-        private String password;
-    }
+//    @Data
+//    public static class LoginRequest {
+//        @NotEmpty(message = "username is required")
+//        private String username;
+//        @NotEmpty(message = "password is required")
+//        private String password;
+//    }
 
     @Data
     public static class LoginRespone {
