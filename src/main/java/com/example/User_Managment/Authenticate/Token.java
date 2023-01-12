@@ -43,10 +43,14 @@ public class Token {
         this.user = user;
     }
 
-    public String generateAuthToken(Long user_id) {
+    public Token(User user) {
+        this.user = user;
+    }
+
+    public String generateAuthToken(Token token) {
         //Set claims
         Map<String, Object> claims = new HashMap<>();
-        claims.put("user-id", user_id);
+        claims.put("Token_content", token);
 
         //Create jwt token
         return Jwts.builder()

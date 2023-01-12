@@ -26,10 +26,10 @@ public class LoginController {
 
         if (account == null) {
             ErrorRespone respone = new ErrorRespone("Username or Password is incorrect", 401);
-            return ResponseEntity.status(respone.getStatus()).body(respone);
+            return ResponseEntity.status(respone.getStatusCode()).body(respone);
         } else {
-            String authToken = token.generateAuthToken(account.getUser().getUserId());
-            Token newToken = new Token(authToken, account.getUser());
+            Token newToken = new Token(account.getUser());
+            String authToken = token.generateAuthToken(newToken);
             return ResponseEntity.status(200).body(new Login.LoginRespone("Login success", authToken));
         }
     }

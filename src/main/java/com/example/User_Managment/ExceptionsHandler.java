@@ -35,8 +35,8 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.error(ex.getMessage());
         Throwable throwable = ex.getCause();
-        if (throwable instanceof InvalidFormatException) {
-            logger.error("Input invalid");
+        if (throwable instanceof InvalidFormatException ) {
+            logger.error(throwable.getMessage());
             return buildResponseEntity(new ErrorRespone("Invalid format", HttpStatus.BAD_REQUEST.value()));
         }
         return buildResponseEntity(new ErrorRespone("Missing Request Body", status.value()));
@@ -57,13 +57,13 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone(status.getReasonPhrase(), status.value()));
+        return buildResponseEntity(new ErrorRespone("Missing header", status.value()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
         logger.warn(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Can't find user", HttpStatus.BAD_REQUEST.value()));
+        return buildResponseEntity(new ErrorRespone("Can't find user", HttpStatus.NO_CONTENT.value()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -105,7 +105,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
 
 
     private ResponseEntity<Object> buildResponseEntity(ErrorRespone errorRespone) {
-        return new ResponseEntity<>(errorRespone, HttpStatus.valueOf(errorRespone.getStatus()));
+        return new ResponseEntity<>(errorRespone, HttpStatus.valueOf(errorRespone.getStatusCode()));
     }
 
 }

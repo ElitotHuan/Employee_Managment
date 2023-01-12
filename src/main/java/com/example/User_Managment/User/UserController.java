@@ -31,12 +31,12 @@ public class UserController {
         if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
             Object respone = userService.getUsers(id.describeConstable());
             if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
+                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
             }
             return ResponseEntity.status(200).body(respone);
         } else {
             errorRespone = new ErrorRespone("Unauthorized Access!", HttpStatus.UNAUTHORIZED.value());
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
+            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
         }
     }
 
@@ -47,12 +47,12 @@ public class UserController {
         if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
             Object respone = userService.addUser(user);
             if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
+                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
             }
             return ResponseEntity.status(200).body(respone);
         } else {
             errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
         }
     }
 
@@ -63,12 +63,12 @@ public class UserController {
         if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
             Object respone = userService.updateUser(user.getUserId(), user);
             if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
+                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
             }
             return ResponseEntity.status(200).body(respone);
         } else {
             errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
         }
 
     }
@@ -90,7 +90,7 @@ public class UserController {
             return ResponseEntity.ok().body(respone);
         } else {
             errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+            return ResponseEntity.status(errorRespone.getStatusCode()).body(errorRespone);
         }
 
 

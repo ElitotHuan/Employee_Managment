@@ -51,7 +51,7 @@ public class UserService {
         } else {
             User user1 = userRepository.save(user);
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 12 * 365 * 24 * 60 * 60 * 1000), null, user1);
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3L * 12 * 365 * 24 * 60 * 60 * 1000), null, user1);
             userRepository.save(user1);
             loginRepository.save(login1);
             return new SuccessRespone("Added successfully");
