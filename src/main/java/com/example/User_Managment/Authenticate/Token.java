@@ -23,10 +23,8 @@ public class Token {
     @Column(name = "Token_id", columnDefinition = "TEXT")
     private String token;
 
-    @NotNull
     private Date created_date;
 
-    @NotNull
     private Date expired_date;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -54,7 +52,6 @@ public class Token {
 
         //Create jwt token
         return Jwts.builder()
-                .setSubject("Token")
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 60 * 1000))
