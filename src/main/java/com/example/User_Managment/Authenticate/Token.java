@@ -1,4 +1,4 @@
-package com.example.User_Managment.Login;
+package com.example.User_Managment.Authenticate;
 
 import com.example.User_Managment.User.User;
 import io.jsonwebtoken.*;
@@ -22,8 +22,10 @@ public class Token {
 
     @Column(name = "Token_id", columnDefinition = "TEXT")
     private String token;
+
     @NotNull
     private Date created_date;
+
     @NotNull
     private Date expired_date;
 
@@ -51,13 +53,13 @@ public class Token {
                 .setSubject("Token")
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET_KEY).compact();
     }
 
-    public boolean validateToken(String authToken) {
-        Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody();
-        return true;
+    public Jws<Claims> validateToken(String authToken) {
+        Jws<Claims> jwt = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken);
+        return jwt;
     }
 
     public Long getUserIdFromToken(String authToken) {

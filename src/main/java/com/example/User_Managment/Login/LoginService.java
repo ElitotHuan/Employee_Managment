@@ -1,10 +1,14 @@
 package com.example.User_Managment.Login;
 
+import com.example.User_Managment.Authenticate.Token;
+import com.example.User_Managment.Authenticate.TokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 public class LoginService {
@@ -13,24 +17,17 @@ public class LoginService {
     @Autowired
     private LoginRepository loginRepository;
 
-    @Autowired
-    private TokenRepository tokenRepository;
-
-    public Login findAccount(String username, String password) {
+    public Login findAccount(Login.LoginRequest request) {
+        Login account = null;
         try {
-            return loginRepository.findAccount(username, password);
+            account = loginRepository.findAccount(request.getUsername(), request.getPassword());
         } catch (NullPointerException e) {
             logger.warn("Can't find account");
         }
+
+        if (!account.getExp_date().before(new Date())) {
+            return account;
+        }
         return null;
     }
-
-    @Transactional
-    public void storeToken(Token authToken) {
-        int updateCheck = tokenRepository.updateToken(authToken);
-        if (updateCheck == 0) {
-            tokenRepository.save(authToken);
-        }
-    }
-
 }

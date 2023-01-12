@@ -25,53 +25,36 @@ public class UserService {
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private List<User> list;
 
-    public List<UserDTO> getAll() {
-        logger.info("Getting User list...");
-        List<User> list = userRepository.findAll();
-        List<UserDTO> result = new ArrayList<>();
+    public Object getUsers(Optional<String> id) {
+        if (id == null) {
+            logger.info("Getting User list...");
+            List<UserDTO> list = userRepository.getAllUsers();
 
-        for (User e : list) {
-            UserDTO employeeDTO = new UserDTO(e.getUserId(), e.getName(), e.getAge()
-                    , e.getPosition(), e.getSalary());
-            result.add(employeeDTO);
-        }
-        logger.info("Return list success");
-        return result;
-    }
+            if (list.isEmpty()) {
+                return new SuccessRespone("There are no users");
+            }
 
-    public UserDTO getUser(Long id) {
-        try {
-            User employeeWithId = userRepository.findById(id).get();
-            UserDTO result = new UserDTO(employeeWithId.getUserId(), employeeWithId.getName(), employeeWithId.getAge(),
-                    employeeWithId.getPosition(), employeeWithId.getSalary());
+            return list;
+        } else {
+            User u = userRepository.getReferenceById(Long.valueOf(id.get()));
             logger.info("Return employee success");
-            return result;
-        } catch (NoSuchElementException e) {
-            logger.error("User doesn't exit");
-            return null;
+            return new UserDTO(u.getUserId(), u.getName(), u.getAge(), u.getPosition(), u.getSalary());
         }
     }
 
     public Object addUser(User user) {
         logger.info("Recieving data from client...");
-        try {
-            if (userRepository.existsByUsername(user.getUsername())) {
-                logger.warn("Username already existed");
-                return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
-            } else {
-                User user1 = userRepository.save(user);
-                Login login1 = new Login(user.getUsername(), user.getPassword(),
-                        new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 12 * 365 * 24 * 60 * 60 * 1000), null, user1);
-                userRepository.save(user1);
-                loginRepository.save(login1);
-                logger.info(user1 + " has been added to database");
-                return new SuccessRespone("Added successfully");
-            }
-        } catch (PropertyValueException | DataIntegrityViolationException e) {
-            logger.error("Cannot add data because " + e);
-            return new ErrorRespone("JSON parse error", HttpStatus.BAD_REQUEST.value());
+        if (userRepository.existsByUsername(user.getUsername())) {
+            logger.warn("Username already existed");
+            return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
+        } else {
+            User user1 = userRepository.save(user);
+            Login login1 = new Login(user.getUsername(), user.getPassword(),
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 12 * 365 * 24 * 60 * 60 * 1000), null, user1);
+            userRepository.save(user1);
+            loginRepository.save(login1);
+            return new SuccessRespone("Added successfully");
         }
     }
 
@@ -82,14 +65,7 @@ public class UserService {
             Ony update the information of the employee except the username
         */
         if (updateEmployee.getUsername().equalsIgnoreCase(employee.getUsername())) {
-            updateEmployee.setName(employee.getName());
-            updateEmployee.setAge(employee.getAge());
-            updateEmployee.setUsername(employee.getUsername());
-            updateEmployee.setPassword(employee.getPassword());
-            updateEmployee.setPosition(employee.getPosition());
-            updateEmployee.setSalary(employee.getSalary());
-            userRepository.save(updateEmployee);
-            logger.info("Data has been updated");
+            setUserInfo(employee, updateEmployee);
             return new SuccessRespone("Update successfully");
         } else {
             //Update the username and other information
@@ -97,18 +73,13 @@ public class UserService {
                 logger.warn("Username already existed");
                 return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
             } else {
-                updateEmployee.setName(employee.getName());
-                updateEmployee.setAge(employee.getAge());
-                updateEmployee.setUsername(employee.getUsername());
-                updateEmployee.setPassword(employee.getPassword());
-                updateEmployee.setPosition(employee.getPosition());
-                updateEmployee.setSalary(employee.getSalary());
-                userRepository.save(updateEmployee);
+                setUserInfo(employee, updateEmployee);
                 logger.info("Data has been updated");
                 return new SuccessRespone("Updated successfully");
             }
         }
     }
+
 
 //    public ResponeObject updatePassword(Long employ_id, String password) {
 //        User employee = employeeRepository.getReferenceById(employ_id);
@@ -136,5 +107,14 @@ public class UserService {
         return userRepository.existsByUserId(userId);
     }
 
+    private void setUserInfo(User employee, User updateEmployee) {
+        updateEmployee.setName(employee.getName());
+        updateEmployee.setAge(employee.getAge());
+        updateEmployee.setUsername(employee.getUsername());
+        updateEmployee.setPassword(employee.getPassword());
+        updateEmployee.setPosition(employee.getPosition());
+        updateEmployee.setSalary(employee.getSalary());
+        userRepository.save(updateEmployee);
+    }
 
 }

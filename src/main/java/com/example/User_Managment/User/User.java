@@ -1,6 +1,6 @@
 package com.example.User_Managment.User;
 
-import com.example.User_Managment.Login.Token;
+import com.example.User_Managment.Authenticate.Token;
 import com.example.User_Managment.Login.Login;
 import lombok.Data;
 
@@ -18,15 +18,15 @@ public class User {
     private Long userId;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "Name is required")
+    @NotEmpty(message = " is required")
     private String name;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "username is required")
+    @NotEmpty(message = " is required")
     private String username;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "password is required")
+    @NotEmpty(message = " is required")
     private String password;
 
     @NotNull
@@ -35,7 +35,7 @@ public class User {
     private int age;
 
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "position is required")
+    @NotEmpty(message = " is required")
     private String position;
 
     @NotNull
@@ -56,7 +56,5 @@ public class User {
 
     public User() {
     }
-
-
 
 }

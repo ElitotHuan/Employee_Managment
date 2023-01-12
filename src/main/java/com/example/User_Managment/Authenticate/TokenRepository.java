@@ -1,4 +1,4 @@
-package com.example.User_Managment.Login;
+package com.example.User_Managment.Authenticate;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

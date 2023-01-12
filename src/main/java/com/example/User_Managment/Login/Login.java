@@ -9,8 +9,6 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import java.util.Date;
 
-@XmlRootElement(name = "login")
-@XmlAccessorType(XmlAccessType.NONE)
 @Data
 @Entity
 @Table(name = "login")
@@ -23,12 +21,12 @@ public class Login {
 
     @XmlElement(name = "username")
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "username is required")
+    @NotEmpty(message = " is required")
     private String username;
 
     @XmlElement(name = "password")
     @Column(columnDefinition = "TEXT")
-    @NotEmpty(message = "password is required")
+    @NotEmpty(message = " is required")
     private String password;
 
     @NotNull
@@ -43,13 +41,13 @@ public class Login {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
-//    @Data
-//    public static class LoginRequest {
-//        @NotEmpty(message = "username is required")
-//        private String username;
-//        @NotEmpty(message = "password is required")
-//        private String password;
-//    }
+    @Data
+    public static class LoginRequest {
+        @NotEmpty(message = " is required")
+        private String username;
+        @NotEmpty(message = " is required")
+        private String password;
+    }
 
     @Data
     public static class LoginRespone {

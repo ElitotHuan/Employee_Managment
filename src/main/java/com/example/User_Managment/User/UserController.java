@@ -1,6 +1,6 @@
 package com.example.User_Managment.User;
 
-import com.example.User_Managment.Login.Token;
+import com.example.User_Managment.Authenticate.Token;
 import com.example.User_Managment.response_handler.ErrorRespone;
 import com.example.User_Managment.response_handler.SuccessRespone;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    UserService services;
+    UserService userService;
 
 
     Token token = new Token();
@@ -28,72 +28,49 @@ public class UserController {
     @GetMapping("/get")
     public ResponseEntity<?> getUser(@RequestParam(required = false) String id,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
-        if (token.validateToken(authtoken)) {
-            if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-                if (id == null) {
-                    List<UserDTO> list = services.getAll();
-                    if (list.isEmpty()) {
-                        return ResponseEntity.status(200).body(new SuccessRespone("There are no users"));
-                    }
-                    return ResponseEntity.ok(list);
-                }
-
-                if (id.isEmpty()) {
-                    errorRespone = new ErrorRespone("Not provide id", HttpStatus.BAD_REQUEST.value());
-                    return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
-                } else {
-                    UserDTO employee = services.getUser(Long.parseLong(id));
-                    if (employee == null) {
-                        return ResponseEntity.status(204).body(new SuccessRespone("User doesn't exit"));
-                    }
-                    return ResponseEntity.ok(employee);
-                }
-            } else {
-                errorRespone = new ErrorRespone("Unauthorized Access!", HttpStatus.UNAUTHORIZED.value());
-                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
+        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
+            Object respone = userService.getUsers(id.describeConstable());
+            if (respone instanceof ErrorRespone) {
+                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
             }
+            return ResponseEntity.status(200).body(respone);
+        } else {
+            errorRespone = new ErrorRespone("Unauthorized Access!", HttpStatus.UNAUTHORIZED.value());
+            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone);
         }
-
-        return null;
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody @Valid User user,
-                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authtoken) {
+                                     @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
-        if (token.validateToken(authtoken)) {
-            if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-                Object respone = services.addUser(user);
-                if (respone instanceof ErrorRespone) {
-                    return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
-                }
-                return ResponseEntity.status(200).body(respone);
-            } else {
-                errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
+            Object respone = userService.addUser(user);
+            if (respone instanceof ErrorRespone) {
+                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
             }
+            return ResponseEntity.status(200).body(respone);
+        } else {
+            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
+            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
-
-        return null;
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody @Valid User user,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
-        if (token.validateToken(authtoken)) {
-            if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-                Object respone = services.updateUser(user.getUserId(), user);
-                if (respone instanceof ErrorRespone) {
-                    return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
-                }
-                return ResponseEntity.status(200).body(respone);
-            } else {
-                errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
+        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
+            Object respone = userService.updateUser(user.getUserId(), user);
+            if (respone instanceof ErrorRespone) {
+                return ResponseEntity.status(((ErrorRespone) respone).getStatus()).body(respone);
             }
+            return ResponseEntity.status(200).body(respone);
+        } else {
+            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
+            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
-        return null;
+
     }
 
 //    @PutMapping("/update/password")
@@ -107,17 +84,15 @@ public class UserController {
     public ResponseEntity<?> removeUser(@Valid @RequestBody User.UserID id,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
-        if (token.validateToken(authtoken)) {
-            if (services.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-                Object respone = services.deleteUser(id.getId());
-                return ResponseEntity.ok().body(respone);
-            } else {
-                errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-                return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
-            }
 
+        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
+            Object respone = userService.deleteUser(id.getId());
+            return ResponseEntity.ok().body(respone);
+        } else {
+            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
+            return ResponseEntity.status(errorRespone.getStatus()).body(errorRespone.getStatus());
         }
-        return null;
+
 
     }
 

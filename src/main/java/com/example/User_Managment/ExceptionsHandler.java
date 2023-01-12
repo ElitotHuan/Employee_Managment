@@ -47,17 +47,17 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
         List<String> listErrors = new ArrayList<>();
         for (FieldError fieldError: fieldErrors ) {
-            String errorMessage = fieldError.getDefaultMessage();
+            String errorMessage = fieldError.getField() + " " + fieldError.getDefaultMessage();
             listErrors.add(errorMessage);
         }
         logger.warn(listErrors.toString());
-        return buildResponseEntity(new ErrorRespone("Validation failed", status.value()));
+        return buildResponseEntity(new ErrorRespone(listErrors.toString(), status.value()));
     }
 
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone(ex.getMessage(), status.value()));
+        return buildResponseEntity(new ErrorRespone(status.getReasonPhrase(), status.value()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -72,33 +72,33 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
-    //JWT exceptions
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        logger.error("JWT String argument cannot be null or empty");
-        return buildResponseEntity(new ErrorRespone("Unauthenticated Access!", HttpStatus.UNAUTHORIZED.value()));
+        logger.error(ex.getMessage());
+        return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
+    //JWT exceptions
     @ExceptionHandler(MalformedJwtException.class)
-    protected ResponseEntity<Object> handleMalformedJwtException(MalformedJwtException ex, WebRequest request) {
-        logger.error("Invalid JWT token");
-        return buildResponseEntity(new ErrorRespone("Unauthenticated Access!", HttpStatus.UNAUTHORIZED.value()));
+    protected ResponseEntity<Object> handleMalformedJwtException(MalformedJwtException ex) {
+        logger.error(ex.getMessage());
+        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
     }
 
-    @ExceptionHandler({UnsupportedJwtException.class})
-    protected ResponseEntity<Object> handleUnsupportedJwtException(UnsupportedJwtException ex, WebRequest request) {
-        logger.error("JWT token is unsupported");
-        return buildResponseEntity(new ErrorRespone("Unauthenticated Access!", HttpStatus.UNAUTHORIZED.value()));
+    @ExceptionHandler(UnsupportedJwtException.class)
+    protected ResponseEntity<Object> handleUnsupportedJwtException(UnsupportedJwtException ex) {
+        logger.error(ex.getMessage());
+        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
     }
 
     @ExceptionHandler(SignatureException.class)
-    protected ResponseEntity<Object> handleSignatureException(SignatureException ex, WebRequest request) {
-        logger.error("Signature verification failed");
-        return buildResponseEntity(new ErrorRespone("Unauthenticated Access!", HttpStatus.UNAUTHORIZED.value()));
+    protected ResponseEntity<Object> handleSignatureException(SignatureException ex) {
+        logger.error(ex.getMessage());
+        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(ExpiredJwtException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleIllegalArgumentException(ExpiredJwtException ex) {
         logger.error("JWT expired at " + ex.getClaims().getExpiration());
         return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
     }

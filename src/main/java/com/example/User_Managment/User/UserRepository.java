@@ -1,17 +1,20 @@
 package com.example.User_Managment.User;
 
-import com.example.User_Managment.User.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    //Select id ,age from user
 
     Boolean existsByUserId(Long userId);
 
     Boolean existsByUsername(String username);
 
-    User findByUsername(String username);
+    @Query(value = "select new com.example.User_Managment.User.UserDTO (u.userId , u.name, u.age , u.position , u.salary) from User u")
+    List<UserDTO> getAllUsers();
+
 }
