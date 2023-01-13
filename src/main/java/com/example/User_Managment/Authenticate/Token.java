@@ -14,6 +14,7 @@ import java.util.*;
 @Table(name = "Token_info")
 public class Token {
     private static final String JWT_SECRET_KEY = "TMASolution";
+    private TokenRepository tokenRepository;
 
     @Id
     @Column(name = "id", columnDefinition = "bigserial")
@@ -36,8 +37,8 @@ public class Token {
 
     public Token(String token, User user) {
         this.token = token;
-        this.created_date = getClaimsFromToken(token).getIssuedAt();
-        this.expired_date = getClaimsFromToken(token).getExpiration();
+        this.created_date = new Date(System.currentTimeMillis());
+        this.expired_date = new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000);
         this.user = user;
     }
 
@@ -51,16 +52,19 @@ public class Token {
         claims.put("Token_content", token);
 
         //Create jwt token
-        return Jwts.builder()
+        String authToken =  Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET_KEY).compact();
+        create(token);
+
+        return authToken;
     }
 
-    public Jws<Claims> validateToken(String authToken) {
-        Jws<Claims> jwt = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken);
-        return jwt;
+    public Boolean validateToken(String authToken) {
+        Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody();
+        return true;
     }
 
     public Long getUserIdFromToken(String authToken) {
@@ -70,4 +74,12 @@ public class Token {
     private Claims getClaimsFromToken(String authToken) {
         return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody();
     }
+
+    private void create(Token t) {
+        int updateChekc = tokenRepository.updateToken(t);
+        if (updateChekc == 0) {
+            tokenRepository.save(t);
+        }
+    }
+    
 }

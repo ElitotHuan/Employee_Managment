@@ -26,7 +26,7 @@ public class UserService {
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
-    public Object getUsers(Optional<String> id) {
+    public Object getUsers(String id) {
         if (id == null) {
             logger.info("Getting User list...");
             List<UserDTO> list = userRepository.getAllUsers();
@@ -37,7 +37,7 @@ public class UserService {
 
             return list;
         } else {
-            User u = userRepository.getReferenceById(Long.valueOf(id.get()));
+            User u = userRepository.getReferenceById(Long.valueOf(id));
             logger.info("Return employee success");
             return new UserDTO(u.getUserId(), u.getName(), u.getAge(), u.getPosition(), u.getSalary());
         }

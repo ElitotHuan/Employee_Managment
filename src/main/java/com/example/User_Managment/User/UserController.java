@@ -28,48 +28,36 @@ public class UserController {
     @GetMapping("/get")
     public ResponseEntity<?> getUser(@RequestParam(required = false) String id,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
-        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-            Object respone = userService.getUsers(id.describeConstable());
-            if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-            }
-            return ResponseEntity.status(200).body(respone);
-        } else {
-            errorRespone = new ErrorRespone("Unauthorized Access!", HttpStatus.UNAUTHORIZED.value());
-            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
+
+        Object respone = userService.getUsers(id);
+        if (respone instanceof ErrorRespone) {
+            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
+        return ResponseEntity.status(200).body(respone);
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody @Valid User user,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
-
-        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-            Object respone = userService.addUser(user);
-            if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-            }
-            return ResponseEntity.status(200).body(respone);
-        } else {
-            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
+        Object respone = userService.addUser(user);
+        if (respone instanceof ErrorRespone) {
+            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
+        return ResponseEntity.status(200).body(respone);
+
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody @Valid User user,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
-        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-            Object respone = userService.updateUser(user.getUserId(), user);
-            if (respone instanceof ErrorRespone) {
-                return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-            }
-            return ResponseEntity.status(200).body(respone);
-        } else {
-            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return new ResponseEntity<>(errorRespone , HttpStatus.valueOf(errorRespone.getStatusCode()));
+
+        Object respone = userService.updateUser(user.getUserId(), user);
+        if (respone instanceof ErrorRespone) {
+            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
+        return ResponseEntity.status(200).body(respone);
+
 
     }
 
@@ -83,16 +71,8 @@ public class UserController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> removeUser(@Valid @RequestBody User.UserID id,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
-
-
-        if (userService.checkUserIdExist(token.getUserIdFromToken(authtoken))) {
-            Object respone = userService.deleteUser(id.getId());
-            return ResponseEntity.ok().body(respone);
-        } else {
-            errorRespone = new ErrorRespone("Unauthorized Access!", 401);
-            return ResponseEntity.status(errorRespone.getStatusCode()).body(errorRespone);
-        }
-
+        Object respone = userService.deleteUser(id.getId());
+        return ResponseEntity.ok().body(respone);
 
     }
 
