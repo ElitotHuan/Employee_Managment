@@ -3,18 +3,18 @@ package com.example.User_Managment.Authenticate;
 import com.example.User_Managment.User.User;
 import io.jsonwebtoken.*;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.*;
-
 
 @Data
 @Entity
 @Table(name = "Token_info")
 public class Token {
     private static final String JWT_SECRET_KEY = "TMASolution";
-    private TokenRepository tokenRepository;
+
 
     @Id
     @Column(name = "id", columnDefinition = "bigserial")
@@ -35,21 +35,17 @@ public class Token {
     public Token() {
     }
 
-    public Token(String token, User user) {
-        this.token = token;
+    public Token(User user) {
         this.created_date = new Date(System.currentTimeMillis());
-        this.expired_date = new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000);
+        this.expired_date = new Date(System.currentTimeMillis() + 10 * 60 * 60 * 1000);
         this.user = user;
     }
 
-    public Token(User user) {
-        this.user = user;
-    }
 
     public String generateAuthToken(Token token) {
         //Set claims
         Map<String, Object> claims = new HashMap<>();
-        claims.put("Token_content", token);
+        claims.put("user-id", token.user.getUserId());
 
         //Create jwt token
         String authToken =  Jwts.builder()
@@ -57,7 +53,11 @@ public class Token {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET_KEY).compact();
-        create(token);
+
+
+        //Add or Update token to the database
+        token.setToken(authToken);
+//        create(token);
 
         return authToken;
     }
@@ -67,19 +67,5 @@ public class Token {
         return true;
     }
 
-    public Long getUserIdFromToken(String authToken) {
-        return getClaimsFromToken(authToken).get("user-id", Long.class);
-    }
-
-    private Claims getClaimsFromToken(String authToken) {
-        return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody();
-    }
-
-    private void create(Token t) {
-        int updateChekc = tokenRepository.updateToken(t);
-        if (updateChekc == 0) {
-            tokenRepository.save(t);
-        }
-    }
     
 }

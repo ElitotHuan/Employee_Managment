@@ -22,15 +22,20 @@ public class LoginController {
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody Login.LoginRequest request) {
-        Login account = loginService.findAccount(request);
+        Object account = loginService.validateAccount(request);
 
         if (account == null) {
-            ErrorRespone respone = new ErrorRespone("Username or Password is incorrect", 401);
-            return ResponseEntity.status(respone.getStatusCode()).body(respone);
-        } else {
-            Token newToken = new Token(account.getUser());
-            String authToken = token.generateAuthToken(newToken);
-            return ResponseEntity.status(200).body(new Login.LoginRespone("Login success", authToken));
+            return ResponseEntity.badRequest().body(new ErrorRespone("Username or password is incorrect" , 400));
         }
+
+        if ((Boolean) account == false) {
+            return ResponseEntity.status(403).body(new ErrorRespone("Your account has expired please contact your system administrator" , 403));
+        }
+
+        Login a = (Login) account;
+        Token newToken = new Token(a.getUser());
+        String authToken = token.generateAuthToken(newToken);
+        return ResponseEntity.status(200).body(new Login.LoginRespone("Login success", authToken));
+
     }
 }

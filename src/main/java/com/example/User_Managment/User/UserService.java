@@ -49,17 +49,16 @@ public class UserService {
             logger.warn("Username already existed");
             return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
         } else {
-            User user1 = userRepository.save(user);
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3L * 12 * 365 * 24 * 60 * 60 * 1000), null, user1);
-            userRepository.save(user1);
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3L * 12 * 365 * 24 * 60 * 60 * 1000), null, user);
+            userRepository.save(user);
             loginRepository.save(login1);
             return new SuccessRespone("Added successfully");
         }
     }
 
     public Object updateUser(Long id, User employee) {
-
+        logger.info("get User with id = " + id + "...");
         User updateEmployee = userRepository.getReferenceById(id);
         /*
             Ony update the information of the employee except the username
@@ -81,30 +80,25 @@ public class UserService {
     }
 
 
-//    public ResponeObject updatePassword(Long employ_id, String password) {
-//        User employee = employeeRepository.getReferenceById(employ_id);
-//        PasswordInfo passwordInfo = getPasswordInfoByEmployId(employee);
-//        Date update_date = new Date();
-//
-//        employee.setPassword(password);
-//        passwordInfo.setPassword(password);
-//        passwordInfo.setUpdate_date(update_date);
-//
-//        employeeRepository.save(employee);
-//        passwordRepository.save(passwordInfo);
-//        return new ResponeObject("Update password successfully");
-//    }
+    public Object updatePassword(Long user_id, String password) {
+        logger.info("get User with id = " + user_id + "...");
+        User getUserInfo = userRepository.getReferenceById(user_id);
+        Date updateDate = new Date();
+
+        getUserInfo.setPassword(password);
+        getUserInfo.getLogin().setPassword(password);
+        getUserInfo.getLogin().setUpdate_date(updateDate);
+
+        userRepository.save(getUserInfo);
+        logger.info("Password has been updated");
+        return new SuccessRespone("Updated password successfully");
+    }
 
     public Object deleteUser(Long id) {
         User employee = userRepository.getReferenceById(id);
         userRepository.delete(employee);
         logger.info("User: " + employee.getName() + " has been deleted");
         return new SuccessRespone("Delete successfully");
-    }
-
-
-    public Boolean checkUserIdExist(Long userId) {
-        return userRepository.existsByUserId(userId);
     }
 
     private void setUserInfo(User employee, User updateEmployee) {

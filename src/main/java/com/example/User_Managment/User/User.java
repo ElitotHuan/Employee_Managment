@@ -54,6 +54,13 @@ public class User {
         private Long id;
     }
 
+    @Data
+    public static class PasswordUpdate {
+        private Long id;
+
+        private String newPassword;
+    }
+
     public User() {
     }
 
