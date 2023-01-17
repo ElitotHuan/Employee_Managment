@@ -1,8 +1,8 @@
 package com.example.User_Managment.authenticate;
 
-import com.example.User_Managment.configuration.SpringConfiguration;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -12,6 +12,8 @@ import java.util.Map;
 @Service
 public class TokenService {
     private static final String JWT_SECRET_KEY = "TMASolution";
+    @Autowired
+    private TokenRepository tokenRepository;
     public String generateAuthToken(Token token) {
         //Set claims. Contain only necessary information of the user
         Map<String, Object> claims = new HashMap<>();
@@ -46,7 +48,6 @@ public class TokenService {
 
 
     private void create(Token token) {
-        TokenRepository tokenRepository = (TokenRepository) SpringConfiguration.contextProvider().getApplicationContext().getBean("tokenRepository");
         int updateCheck = tokenRepository.updateToken(token);
         if (updateCheck == 0) {
             tokenRepository.save(token);
