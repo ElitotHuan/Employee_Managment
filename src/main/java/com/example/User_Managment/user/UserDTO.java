@@ -1,4 +1,4 @@
-package com.example.User_Managment.User;
+package com.example.User_Managment.user;
 
 import lombok.Data;
 
@@ -22,7 +22,6 @@ public class UserDTO {
         this.position = position;
         this.salary = salary;
     }
-
 
 }
 

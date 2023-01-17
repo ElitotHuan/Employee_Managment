@@ -1,16 +1,13 @@
-package com.example.User_Managment.User;
+package com.example.User_Managment.user;
 
-import com.example.User_Managment.Authenticate.Token;
+import com.example.User_Managment.authenticate.Token;
 import com.example.User_Managment.response_handler.ErrorRespone;
-import com.example.User_Managment.response_handler.SuccessRespone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -30,18 +27,19 @@ public class UserController {
         if (respone instanceof ErrorRespone) {
             return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
-        return ResponseEntity.status(200).body(respone);
+        return ResponseEntity.ok(respone);
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> addUser(@RequestBody @Valid User user,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         token.validateToken(authtoken);
+        String userRole = token.getRoleFromToken(authtoken);
         Object respone = userService.addUser(user);
         if (respone instanceof ErrorRespone) {
             return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
-        return ResponseEntity.status(200).body(respone);
+        return ResponseEntity.ok(respone);
 
     }
 
@@ -53,7 +51,7 @@ public class UserController {
         if (respone instanceof ErrorRespone) {
             return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
         }
-        return ResponseEntity.status(200).body(respone);
+        return ResponseEntity.ok(respone);
     }
 
     @PutMapping("/update/password")
@@ -61,7 +59,7 @@ public class UserController {
                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         token.validateToken(authtoken);
         Object respone = userService.updatePassword(update.getId(), update.getNewPassword());
-        return ResponseEntity.status(200).body(respone);
+        return ResponseEntity.ok(respone);
     }
 
     @DeleteMapping("/delete")
@@ -69,7 +67,7 @@ public class UserController {
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         token.validateToken(authtoken);
         Object respone = userService.deleteUser(id.getId());
-        return ResponseEntity.ok().body(respone);
+        return ResponseEntity.ok(respone);
     }
 
 }

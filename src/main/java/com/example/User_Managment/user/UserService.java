@@ -1,14 +1,12 @@
-package com.example.User_Managment.User;
+package com.example.User_Managment.user;
 
-import com.example.User_Managment.Login.Login;
-import com.example.User_Managment.Login.LoginRepository;
+import com.example.User_Managment.login.Login;
+import com.example.User_Managment.login.LoginRepository;
 import com.example.User_Managment.response_handler.ErrorRespone;
 import com.example.User_Managment.response_handler.SuccessRespone;
-import org.hibernate.PropertyValueException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +48,10 @@ public class UserService {
             return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
         } else {
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3L * 12 * 365 * 24 * 60 * 60 * 1000), null, user);
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 *  365 * 24 * 60 * 60 * 1000), null ,user);
             userRepository.save(user);
             loginRepository.save(login1);
+            logger.info("User has been added");
             return new SuccessRespone("Added successfully");
         }
     }

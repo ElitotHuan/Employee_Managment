@@ -52,7 +52,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
             listErrors.add(errorMessage);
         }
         logger.warn(listErrors.toString());
-        return buildResponseEntity(new ErrorRespone(listErrors.toString(), status.value()));
+        return buildResponseEntity(new ErrorRespone("There is something wrong with input values", status.value()));
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        return buildResponseEntity(new ErrorRespone("", HttpStatus.BAD_REQUEST.value()));
     }
 
     //JWT exceptions
@@ -99,7 +99,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(ExpiredJwtException ex) {
+    protected ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException ex) {
         logger.error("JWT expired at " + ex.getClaims().getExpiration());
         return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
     }

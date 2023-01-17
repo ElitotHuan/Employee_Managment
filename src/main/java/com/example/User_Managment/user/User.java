@@ -1,7 +1,7 @@
-package com.example.User_Managment.User;
+package com.example.User_Managment.user;
 
-import com.example.User_Managment.Authenticate.Token;
-import com.example.User_Managment.Login.Login;
+import com.example.User_Managment.authenticate.Token;
+import com.example.User_Managment.login.Login;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -43,6 +43,10 @@ public class User {
     @Min(1000)
     private double salary;
 
+    @Column(columnDefinition = "TEXT")
+    @NotEmpty
+    private String role;
+
     @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     private Login login;
 
@@ -56,8 +60,10 @@ public class User {
 
     @Data
     public static class PasswordUpdate {
+        @NotNull
         private Long id;
 
+        @NotEmpty
         private String newPassword;
     }
 

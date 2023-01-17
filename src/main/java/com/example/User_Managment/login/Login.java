@@ -1,6 +1,6 @@
-package com.example.User_Managment.Login;
+package com.example.User_Managment.login;
 
-import com.example.User_Managment.User.User;
+import com.example.User_Managment.user.User;
 import lombok.Data;
 
 import javax.persistence.*;
