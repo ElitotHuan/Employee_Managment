@@ -24,22 +24,18 @@ public class UserController {
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
 
         tokenService.validateToken(authtoken);
+        String userRole = tokenService.getRoleFromToken(authtoken);
         Object respone = userService.getUsers(id);
-        if (respone instanceof ErrorRespone) {
-            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-        }
         return ResponseEntity.ok(respone);
     }
 
     @PostMapping("/add")
+    @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody @Valid User user,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
         String userRole = tokenService.getRoleFromToken(authtoken);
         Object respone = userService.addUser(user);
-        if (respone instanceof ErrorRespone) {
-            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-        }
         return ResponseEntity.ok(respone);
 
     }
@@ -49,9 +45,6 @@ public class UserController {
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
         Object respone = userService.updateUser(user.getUserId(), user);
-        if (respone instanceof ErrorRespone) {
-            return ResponseEntity.status(((ErrorRespone) respone).getStatusCode()).body(respone);
-        }
         return ResponseEntity.ok(respone);
     }
 

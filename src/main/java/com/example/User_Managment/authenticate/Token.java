@@ -1,12 +1,8 @@
 package com.example.User_Managment.authenticate;
 
-import com.example.User_Managment.configuration.SpringConfiguration;
 import com.example.User_Managment.user.User;
 import io.jsonwebtoken.*;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.support.Repositories;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.util.*;

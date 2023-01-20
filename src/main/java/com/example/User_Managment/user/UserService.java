@@ -1,13 +1,12 @@
 package com.example.User_Managment.user;
 
+import com.example.User_Managment.exceptions_handler.customs_exception.UserExistedException;
 import com.example.User_Managment.login.Login;
 import com.example.User_Managment.login.LoginRepository;
-import com.example.User_Managment.response_handler.ErrorRespone;
 import com.example.User_Managment.response_handler.SuccessRespone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,11 +27,6 @@ public class UserService {
         if (id == null) {
             logger.info("Getting User list...");
             List<UserDTO> list = userRepository.getAllUsers();
-
-            if (list.isEmpty()) {
-                return new SuccessRespone("There are no users");
-            }
-
             return list;
         } else {
             User u = userRepository.getReferenceById(Long.valueOf(id));
@@ -41,14 +35,14 @@ public class UserService {
         }
     }
 
-    public Object addUser(User user) {
+    public SuccessRespone addUser(User user) {
         logger.info("Recieving data from client...");
         if (userRepository.existsByUsername(user.getUsername())) {
             logger.warn("Username already existed");
-            return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
+            throw new UserExistedException();
         } else {
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 *  365 * 24 * 60 * 60 * 1000), null ,user);
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000), null, user);
             userRepository.save(user);
             loginRepository.save(login1);
             logger.info("User has been added");
@@ -69,7 +63,7 @@ public class UserService {
             //Update the username and other information
             if (userRepository.existsByUsername(employee.getUsername())) {
                 logger.warn("Username already existed");
-                return new ErrorRespone("This username is already taken", HttpStatus.CONFLICT.value());
+                throw new UserExistedException();
             } else {
                 setUserInfo(employee, updateEmployee);
                 logger.info("Data has been updated");
@@ -100,14 +94,15 @@ public class UserService {
         return new SuccessRespone("Delete successfully");
     }
 
-    private void setUserInfo(User employee, User updateEmployee) {
-        updateEmployee.setName(employee.getName());
-        updateEmployee.setAge(employee.getAge());
-        updateEmployee.setUsername(employee.getUsername());
-        updateEmployee.setPassword(employee.getPassword());
-        updateEmployee.setPosition(employee.getPosition());
-        updateEmployee.setSalary(employee.getSalary());
-        userRepository.save(updateEmployee);
+    private void setUserInfo(User user, User updateUser) {
+        updateUser.setName(user.getName());
+        updateUser.setAge(user.getAge());
+        updateUser.setUsername(user.getUsername());
+        updateUser.setPassword(user.getPassword());
+        updateUser.setPosition(user.getPosition());
+        updateUser.setSalary(user.getSalary());
+        updateUser.setRole(user.getRole());
+        userRepository.save(updateUser);
     }
 
 }

@@ -14,18 +14,16 @@ import javax.validation.Valid;
 
 @RestController
 public class LoginController {
+
     @Autowired
     private LoginService loginService;
+
     @Autowired
     private TokenService tokenService;
 
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody Login.LoginRequest request) {
-        Object response = loginService.validateAccount(request);
-        if (response instanceof ErrorRespone) {
-            return ResponseEntity.status(((ErrorRespone) response).getStatusCode()).body(response);
-        }
-        Login account = (Login) response;
+        Login account = loginService.validateAccount(request);
         String authToken = tokenService.generateAuthToken(new Token(account.getUser()));
         return ResponseEntity.ok(new Login.LoginRespone("Login success", authToken));
     }

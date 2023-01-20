@@ -12,8 +12,10 @@ import java.util.Map;
 @Service
 public class TokenService {
     private static final String JWT_SECRET_KEY = "TMASolution";
+
     @Autowired
     private TokenRepository tokenRepository;
+
     public String generateAuthToken(Token token) {
         //Set claims. Contain only necessary information of the user
         Map<String, Object> claims = new HashMap<>();
