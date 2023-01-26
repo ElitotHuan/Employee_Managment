@@ -67,6 +67,14 @@ public class User {
         private String newPassword;
     }
 
+    @Data
+    public static class ExpUpdate {
+        private Long id;
+
+        private int numberOfYear;
+    }
+
+
     public User() {
     }
 

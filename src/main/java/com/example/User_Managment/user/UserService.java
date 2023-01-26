@@ -17,9 +17,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private LoginRepository loginRepository;
-
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
 
@@ -42,15 +39,15 @@ public class UserService {
             throw new UserExistedException();
         } else {
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000), null, user);
+                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000L), null, user);
+            user.setLogin(login1);
             userRepository.save(user);
-            loginRepository.save(login1);
             logger.info("User has been added");
             return new SuccessRespone("Added successfully");
         }
     }
 
-    public Object updateUser(Long id, User employee) {
+    public SuccessRespone updateUser(Long id, User employee) {
         logger.info("get User with id = " + id + "...");
         User updateEmployee = userRepository.getReferenceById(id);
         /*
@@ -85,6 +82,19 @@ public class UserService {
         userRepository.save(getUserInfo);
         logger.info("Password has been updated");
         return new SuccessRespone("Updated password successfully");
+    }
+
+    public Object updateAccountDate(Long user_id , int numberOfYear) {
+        logger.info("get User with id = " + user_id + "...");
+        User getUserInfo = userRepository.getReferenceById(user_id);
+
+
+        Date newExpDate = new Date(getUserInfo.getLogin().getExp_date().getTime() + numberOfYear * 365 * 24 * 60 * 60 * 1000L);
+        getUserInfo.getLogin().setExp_date(newExpDate);
+
+        userRepository.save(getUserInfo);
+        logger.info("Expired date has been updated");
+        return new SuccessRespone("Updated account expired date successfully");
     }
 
     public Object deleteUser(Long id) {

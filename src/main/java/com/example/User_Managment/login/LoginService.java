@@ -25,7 +25,7 @@ public class LoginService {
             if (!account.getExp_date().before(new Date())) {
                 return account;
             } else {
-                throw new AccountExpiredException();
+                throw new AccountExpiredException(account.getUsername() + " has expired at " + account.getExp_date());
             }
         }
     }

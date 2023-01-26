@@ -1,5 +1,7 @@
 package com.example.User_Managment.authenticate;
 
+import com.example.User_Managment.exceptions_handler.customs_exception.AccountExpiredException;
+import com.example.User_Managment.exceptions_handler.customs_exception.RolesAuthorizationException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +28,7 @@ public class TokenService {
         String authToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 3 * 60 * 60 * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000))
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET_KEY).compact();
 
         //Set token infomation before save to database
@@ -43,11 +45,16 @@ public class TokenService {
         return true;
     }
 
-    public String getRoleFromToken(String authToken) {
-        return Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody()
+    public Boolean checkRole(String authToken) {
+        String role = Jwts.parser().setSigningKey(JWT_SECRET_KEY).parseClaimsJws(authToken).getBody()
                 .get("Role", String.class);
-    }
 
+        if (role.equalsIgnoreCase("ADMIN")) {
+            return true;
+        } else {
+            throw new RolesAuthorizationException("you don't have enough access privileges");
+        }
+    }
 
     private void create(Token token) {
         int updateCheck = tokenRepository.updateToken(token);

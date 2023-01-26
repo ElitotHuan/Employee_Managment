@@ -22,46 +22,54 @@ public class UserController {
     @GetMapping("/get")
     public ResponseEntity<?> getUser(@RequestParam(required = false) String id,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
-
         tokenService.validateToken(authtoken);
-        String userRole = tokenService.getRoleFromToken(authtoken);
-        Object respone = userService.getUsers(id);
-        return ResponseEntity.ok(respone);
+        Object response = userService.getUsers(id);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/add")
-    @ResponseBody
     public ResponseEntity<?> addUser(@RequestBody @Valid User user,
                                      @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
-        String userRole = tokenService.getRoleFromToken(authtoken);
-        Object respone = userService.addUser(user);
-        return ResponseEntity.ok(respone);
-
+        tokenService.checkRole(authtoken);
+        Object response = userService.addUser(user);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody @Valid User user,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
-        Object respone = userService.updateUser(user.getUserId(), user);
-        return ResponseEntity.ok(respone);
+        tokenService.checkRole(authtoken);
+        Object response = userService.updateUser(user.getUserId(), user);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody User.PasswordUpdate update,
                                             @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
-        Object respone = userService.updatePassword(update.getId(), update.getNewPassword());
-        return ResponseEntity.ok(respone);
+        tokenService.checkRole(authtoken);
+        Object response = userService.updatePassword(update.getId(), update.getNewPassword());
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update/expiredDate")
+    public ResponseEntity<?> extendExpiredDate(@Valid @RequestBody User.ExpUpdate update,
+                                               @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
+        tokenService.validateToken(authtoken);
+        tokenService.checkRole(authtoken);
+        Object response = userService.updateAccountDate(update.getId(), update.getNumberOfYear());
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> removeUser(@Valid @RequestBody User.UserID id,
                                         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authtoken) {
         tokenService.validateToken(authtoken);
-        Object respone = userService.deleteUser(id.getId());
-        return ResponseEntity.ok(respone);
+        tokenService.checkRole(authtoken);
+        Object response = userService.deleteUser(id.getId());
+        return ResponseEntity.ok(response);
     }
 
 }

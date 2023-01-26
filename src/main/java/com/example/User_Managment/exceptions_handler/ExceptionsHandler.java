@@ -2,6 +2,7 @@ package com.example.User_Managment.exceptions_handler;
 
 import com.example.User_Managment.exceptions_handler.customs_exception.AccountExpiredException;
 import com.example.User_Managment.exceptions_handler.customs_exception.IncorrectLoginException;
+import com.example.User_Managment.exceptions_handler.customs_exception.RolesAuthorizationException;
 import com.example.User_Managment.exceptions_handler.customs_exception.UserExistedException;
 import com.example.User_Managment.response_handler.ErrorRespone;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -87,17 +88,16 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     //Login exceptions
-
     @ExceptionHandler(IncorrectLoginException.class)
     protected ResponseEntity<Object> handleIncorrectLoginException(IncorrectLoginException ex, WebRequest request) {
-        logger.error("Username or password is incorrect");
+        logger.error("Invalid login input");
         return buildResponseEntity(new ErrorRespone("Username or password is incorrect", HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(AccountExpiredException.class)
     protected ResponseEntity<Object> handleAccountExpiredException(AccountExpiredException ex, WebRequest request) {
-        logger.error("Expired Account");
-        return buildResponseEntity(new ErrorRespone("Your account has expired please contact your system administrator", HttpStatus.CONFLICT.value()));
+        logger.error(ex.getMessage());
+        return buildResponseEntity(new ErrorRespone("Your account has expired please contact your system administrator", HttpStatus.FORBIDDEN.value()));
     }
 
 
@@ -123,6 +123,12 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ExpiredJwtException.class)
     protected ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException ex) {
         logger.error("JWT expired at " + ex.getClaims().getExpiration());
+        return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
+    }
+
+    @ExceptionHandler(RolesAuthorizationException.class)
+    protected ResponseEntity<Object> handleRolesAuthorizationException(RolesAuthorizationException ex) {
+        logger.error(ex.getMessage());
         return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
     }
 
