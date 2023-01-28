@@ -53,10 +53,12 @@ public class Login {
     public static class LoginRespone {
         private String message;
         private String accessToken;
+        private String refreshToken;
 
-        public LoginRespone(String message, String accessToken) {
+        public LoginRespone(String message, String accessToken , String refreshToken) {
             this.message = message;
             this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
         }
     }
 

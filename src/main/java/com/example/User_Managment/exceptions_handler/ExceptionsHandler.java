@@ -1,9 +1,6 @@
 package com.example.User_Managment.exceptions_handler;
 
-import com.example.User_Managment.exceptions_handler.customs_exception.AccountExpiredException;
-import com.example.User_Managment.exceptions_handler.customs_exception.IncorrectLoginException;
-import com.example.User_Managment.exceptions_handler.customs_exception.RolesAuthorizationException;
-import com.example.User_Managment.exceptions_handler.customs_exception.UserExistedException;
+import com.example.User_Managment.exceptions_handler.customs_exception.*;
 import com.example.User_Managment.response_handler.ErrorRespone;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,8 +16,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -29,7 +27,7 @@ import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(ExceptionsHandler.class);
 
@@ -64,72 +62,82 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
         logger.warn(ex.getMessage());
         return buildResponseEntity(new ErrorRespone("Can't find user", HttpStatus.NO_CONTENT.value()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    protected ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         logger.error(ex.getMessage());
         return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("", HttpStatus.BAD_REQUEST.value()));
+        return buildResponseEntity(new ErrorRespone(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(UserExistedException.class)
-    protected ResponseEntity<Object> handleUserExistedException(UserExistedException ex, WebRequest request) {
-        logger.error("Add error: Username already existed");
+    protected ResponseEntity<Object> handleUserExistedException(UserExistedException ex) {
+        logger.error(ex.getMessage());
         return buildResponseEntity(new ErrorRespone("Username already existed", HttpStatus.CONFLICT.value()));
     }
 
     //Login exceptions
-    @ExceptionHandler(IncorrectLoginException.class)
-    protected ResponseEntity<Object> handleIncorrectLoginException(IncorrectLoginException ex, WebRequest request) {
-        logger.error("Invalid login input");
-        return buildResponseEntity(new ErrorRespone("Username or password is incorrect", HttpStatus.BAD_REQUEST.value()));
-    }
-
-    @ExceptionHandler(AccountExpiredException.class)
-    protected ResponseEntity<Object> handleAccountExpiredException(AccountExpiredException ex, WebRequest request) {
+    @ExceptionHandler(LoginException.class)
+    protected ResponseEntity<Object> handleAccountExpiredException(LoginException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Your account has expired please contact your system administrator", HttpStatus.FORBIDDEN.value()));
+        if (ex.getMessage().contains("Expired")) {
+            return buildResponseEntity(new ErrorRespone("Your account has expired please contact your system administrator", HttpStatus.UNAUTHORIZED.value()));
+        } else {
+            return buildResponseEntity(new ErrorRespone("Username or password is incorrect", HttpStatus.BAD_REQUEST.value()));
+        }
     }
 
 
     //JWT exceptions
     @ExceptionHandler(MalformedJwtException.class)
-    protected ResponseEntity<Object> handleMalformedJwtException(MalformedJwtException ex) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorRespone handleMalformedJwtException(MalformedJwtException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
+        return new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)
-    protected ResponseEntity<Object> handleUnsupportedJwtException(UnsupportedJwtException ex) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorRespone handleUnsupportedJwtException(UnsupportedJwtException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
+        return new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(SignatureException.class)
-    protected ResponseEntity<Object> handleSignatureException(SignatureException ex) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorRespone handleSignatureException(SignatureException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value()));
+        return new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    protected ResponseEntity<Object> handleExpiredJwtException(ExpiredJwtException ex) {
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorRespone handleExpiredJwtException(ExpiredJwtException ex) {
         logger.error("JWT expired at " + ex.getClaims().getExpiration());
-        return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
+        return new ErrorRespone("Access denied!", HttpStatus.UNAUTHORIZED.value());
     }
 
     @ExceptionHandler(RolesAuthorizationException.class)
-    protected ResponseEntity<Object> handleRolesAuthorizationException(RolesAuthorizationException ex) {
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected ErrorRespone handleRolesAuthorizationException(RolesAuthorizationException ex) {
         logger.error(ex.getMessage());
-        return buildResponseEntity(new ErrorRespone("Unauthorized Access!", HttpStatus.FORBIDDEN.value()));
+        return new ErrorRespone("Forbidden Access!", HttpStatus.FORBIDDEN.value());
+    }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    protected ErrorRespone handleRefreshTokenException(RefreshTokenException ex) {
+        logger.error(ex.getMessage());
+        return new ErrorRespone("Unauthorized!", HttpStatus.FORBIDDEN.value());
     }
 
 

@@ -5,6 +5,7 @@ import io.jsonwebtoken.*;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.*;
 
 @Data
@@ -12,15 +13,16 @@ import java.util.*;
 @Table(name = "Token_info")
 public class Token {
 
-
-
     @Id
     @Column(name = "id", columnDefinition = "bigserial")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "Token_id", columnDefinition = "TEXT")
-    private String token;
+    @Column(name = "access_token", columnDefinition = "TEXT")
+    private String accessToken;
+
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
 
     private Date created_date;
 
@@ -35,6 +37,26 @@ public class Token {
 
     public Token(User user) {
         this.user = user;
+    }
+
+    @Data
+    public static class TokenRefreshRequest {
+        @NotEmpty(message = " is required")
+        private String refreshToken;
+    }
+
+
+    @Data
+    public static class TokenRefreshRespone {
+        private String message;
+        private String accessToken;
+        private String refreshToken;
+
+        public TokenRefreshRespone(String message, String accessToken , String refreshToken) {
+            this.message = message;
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
+        }
     }
 
 //    public String generateAuthToken(Token token) {

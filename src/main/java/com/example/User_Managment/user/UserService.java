@@ -39,7 +39,7 @@ public class UserService {
             throw new UserExistedException();
         } else {
             Login login1 = new Login(user.getUsername(), user.getPassword(),
-                    new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000L), null, user);
+                    new Date(), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000L), null, user);
             user.setLogin(login1);
             userRepository.save(user);
             logger.info("User has been added");
@@ -59,8 +59,8 @@ public class UserService {
         } else {
             //Update the username and other information
             if (userRepository.existsByUsername(employee.getUsername())) {
-                logger.warn("Username already existed");
-                throw new UserExistedException();
+                logger.warn("Username: " + employee.getUsername() + " already existed");
+                throw new UserExistedException("Username: " + employee.getUsername() + " already existed");
             } else {
                 setUserInfo(employee, updateEmployee);
                 logger.info("Data has been updated");
@@ -70,24 +70,22 @@ public class UserService {
     }
 
 
-    public Object updatePassword(Long user_id, String password) {
+    public SuccessRespone updatePassword(Long user_id, String password) {
         logger.info("get User with id = " + user_id + "...");
         User getUserInfo = userRepository.getReferenceById(user_id);
-        Date updateDate = new Date();
 
         getUserInfo.setPassword(password);
         getUserInfo.getLogin().setPassword(password);
-        getUserInfo.getLogin().setUpdate_date(updateDate);
+        getUserInfo.getLogin().setUpdate_date(new Date());
 
         userRepository.save(getUserInfo);
         logger.info("Password has been updated");
         return new SuccessRespone("Updated password successfully");
     }
 
-    public Object updateAccountDate(Long user_id , int numberOfYear) {
+    public SuccessRespone updateAccountDate(Long user_id , int numberOfYear) {
         logger.info("get User with id = " + user_id + "...");
         User getUserInfo = userRepository.getReferenceById(user_id);
-
 
         Date newExpDate = new Date(getUserInfo.getLogin().getExp_date().getTime() + numberOfYear * 365 * 24 * 60 * 60 * 1000L);
         getUserInfo.getLogin().setExp_date(newExpDate);
@@ -97,7 +95,7 @@ public class UserService {
         return new SuccessRespone("Updated account expired date successfully");
     }
 
-    public Object deleteUser(Long id) {
+    public SuccessRespone deleteUser(Long id) {
         User employee = userRepository.getReferenceById(id);
         userRepository.delete(employee);
         logger.info("User: " + employee.getName() + " has been deleted");

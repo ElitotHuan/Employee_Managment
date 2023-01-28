@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "from User u")
     List<UserDTO> getAllUsers();
 
+
+
 }

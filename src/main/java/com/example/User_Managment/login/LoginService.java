@@ -1,7 +1,6 @@
 package com.example.User_Managment.login;
 
-import com.example.User_Managment.exceptions_handler.customs_exception.AccountExpiredException;
-import com.example.User_Managment.exceptions_handler.customs_exception.IncorrectLoginException;
+import com.example.User_Managment.exceptions_handler.customs_exception.LoginException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +18,16 @@ public class LoginService {
     public Login validateAccount(Login.LoginRequest request) {
         logger.info("Find and validate account...");
         Login account = loginRepository.findAccount(request.getUsername(), request.getPassword());
+
         if (account == null) {
-            throw new IncorrectLoginException();
-        } else {
-            if (!account.getExp_date().before(new Date())) {
-                return account;
-            } else {
-                throw new AccountExpiredException(account.getUsername() + " has expired at " + account.getExp_date());
-            }
+            throw new LoginException("Invalid username or password");
         }
+
+        if (!account.getExp_date().before(new Date())) {
+            return account;
+        } else {
+            throw new LoginException(account.getUsername() + " has expired at " + account.getExp_date());
+        }
+
     }
 }

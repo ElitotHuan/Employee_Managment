@@ -24,7 +24,13 @@ public class LoginController {
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@Valid @RequestBody Login.LoginRequest request) {
         Login account = loginService.validateAccount(request);
-        String authToken = tokenService.generateAuthToken(new Token(account.getUser()));
-        return ResponseEntity.ok(new Login.LoginRespone("Login success", authToken));
+        Token authToken = tokenService.generateJwtToken(new Token(account.getUser()));
+        return ResponseEntity.ok(new Login.LoginRespone("Login success", authToken.getAccessToken(), authToken.getRefreshToken()));
+    }
+
+    @PostMapping(value = "/refreshToken")
+    public ResponseEntity<?> refreshtoken(@Valid @RequestBody Token.TokenRefreshRequest request) {
+        Token authToken = tokenService.verifyExpiration(request.getRefreshToken());
+        return ResponseEntity.ok(new Token.TokenRefreshRespone("Refresh token success", authToken.getAccessToken(), authToken.getRefreshToken()));
     }
 }
