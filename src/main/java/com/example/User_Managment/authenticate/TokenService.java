@@ -19,6 +19,8 @@ public class TokenService {
     @Autowired
     private TokenRepository tokenRepository;
 
+
+    //Generate new access token and refresh token when login
     public Token generateJwtToken(Token token) {
         String authToken = this.generate(token);
 
@@ -48,6 +50,8 @@ public class TokenService {
         }
     }
 
+
+    //Generate a new access token when refresh token hasn't expired yet
     public Token verifyExpiration(String requestRefreshToken) {
         Token t = tokenRepository.findByRefreshToken(requestRefreshToken);
         if (t == null) {
@@ -55,14 +59,13 @@ public class TokenService {
         }
 
         if (!t.getExpired_date().before(new Date())) {
-            String authToken = this.generate(t);
-            t.setAccessToken(authToken);
+            String newAccessToken = this.generate(t);
+            t.setAccessToken(newAccessToken);
             this.create(t);
             return t;
         } else {
             throw new RefreshTokenException(requestRefreshToken + " Refresh token was expired. Please make a new signin request");
         }
-
     }
 
     private String generate(Token token) {

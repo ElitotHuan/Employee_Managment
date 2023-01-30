@@ -36,7 +36,7 @@ public class UserService {
         logger.info("Recieving data from client...");
         if (userRepository.existsByUsername(user.getUsername())) {
             logger.warn("Username already existed");
-            throw new UserExistedException();
+            throw new UserExistedException("Username: " + user.getUsername() + " already existed");
         } else {
             Login login1 = new Login(user.getUsername(), user.getPassword(),
                     new Date(), new Date(System.currentTimeMillis() + 3 * 365 * 24 * 60 * 60 * 1000L), null, user);
@@ -47,22 +47,22 @@ public class UserService {
         }
     }
 
-    public SuccessRespone updateUser(Long id, User employee) {
+    public SuccessRespone updateUser(Long id, User user) {
         logger.info("get User with id = " + id + "...");
-        User updateEmployee = userRepository.getReferenceById(id);
+        User updateUser = userRepository.getReferenceById(id);
         /*
             Ony update the information of the employee except the username
         */
-        if (updateEmployee.getUsername().equalsIgnoreCase(employee.getUsername())) {
-            setUserInfo(employee, updateEmployee);
+        if (updateUser.getUsername().equalsIgnoreCase(user.getUsername())) {
+            setUserInfo(user, updateUser);
             return new SuccessRespone("Update successfully");
         } else {
             //Update the username and other information
-            if (userRepository.existsByUsername(employee.getUsername())) {
-                logger.warn("Username: " + employee.getUsername() + " already existed");
-                throw new UserExistedException("Username: " + employee.getUsername() + " already existed");
+            if (userRepository.existsByUsername(user.getUsername())) {
+                logger.warn("Username: " + user.getUsername() + " already existed");
+                throw new UserExistedException("Username: " + user.getUsername() + " already existed");
             } else {
-                setUserInfo(employee, updateEmployee);
+                setUserInfo(user, updateUser);
                 logger.info("Data has been updated");
                 return new SuccessRespone("Updated successfully");
             }

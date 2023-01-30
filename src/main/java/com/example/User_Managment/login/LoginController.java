@@ -29,7 +29,7 @@ public class LoginController {
     }
 
     @PostMapping(value = "/refreshToken")
-    public ResponseEntity<?> refreshtoken(@Valid @RequestBody Token.TokenRefreshRequest request) {
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody Token.TokenRefreshRequest request) {
         Token authToken = tokenService.verifyExpiration(request.getRefreshToken());
         return ResponseEntity.ok(new Token.TokenRefreshRespone("Refresh token success", authToken.getAccessToken(), authToken.getRefreshToken()));
     }
